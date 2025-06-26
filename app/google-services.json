@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "937408260670",
+    "firebase_url": "https://my-hyzenshiah-default-rtdb.firebaseio.com",
+    "project_id": "my-hyzenshiah",
+    "storage_bucket": "my-hyzenshiah.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937408260670:android:7c4b5ae4603399d8287f6f",
+        "android_client_info": {
+          "package_name": "com.hyzen.multipagecomposeapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxyRQ_symzkEN7BDnYPWzsbZCUY6R6dfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937408260670:android:e83ca9f182de403c287f6f",
+        "android_client_info": {
+          "package_name": "com.hyzen.myhyzenshiah"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxyRQ_symzkEN7BDnYPWzsbZCUY6R6dfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
