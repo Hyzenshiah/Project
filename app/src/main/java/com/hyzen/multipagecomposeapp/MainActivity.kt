@@ -214,6 +214,29 @@ fun Android_basics(navController: NavController) {
                     url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
                 )
                 ref.push().setValue(i3)
+
+                val i4 = Item(
+                    title = "Android Basics",
+                    description = "\n" +
+                            "\n" +
+                            "Use this free Android tutorial to get started with your device, manage your privacy and settings, add and delete contacts, and keep it running smoothly.\n",
+                    url = "https://edu.gcfglobal.org/en/androidbasics/"
+                )
+                ref.push().setValue(i3)
+
+                val i5 = Item(
+                    title = "Learn the Basics of Android",
+                    description = "Get started developing Android Apps! Get to know the Android programming environment and skills needed to build basic Android apps",
+                    url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
+                )
+                ref.push().setValue(i3)
+
+                val i6 = Item(
+                    title = "Learn the Basics of Android",
+                    description = "Get started developing Android Apps! Get to know the Android programming environment and skills needed to build basic Android apps",
+                    url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
+                )
+                ref.push().setValue(i3)
             }
             ) {
                 Text("Back To Home")
@@ -233,100 +256,400 @@ fun Android_basics(navController: NavController) {
 
 @Composable
 fun Internal_content(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    val firebase = Firebase.database
+    val ref = firebase.getReference("basics")
+    val context = LocalContext.current
+
+    var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val items = mutableListOf<Item>()
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                items.clear() // Clear existing data to avoid duplicates on updates
+                for (userSnapshot in snapshot.children) {
+                    val user = userSnapshot.getValue(Item::class.java)
+                    user?.let {
+                        items.add(it)
+                    }
+                }
+                dataItems = items
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            LazyColumn(modifier = Modifier.fillMaxSize())
+            {
+                items(dataItems) { item ->
+                    Card(onClick = {
+                        val url = item.url
+                        val webpage = url?.toUri()
+                        val intent = Intent(Intent.ACTION_VIEW, webpage)
+                        context.startActivity(intent)
+                    }) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                "${item.title}",
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("${item.description}")
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
 
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Go Back")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = {
+                navController.popBackStack()
+                val i = Item(
+                    title = "Android Basics with Compose",
+                    description = " Android Basics with Compose is a self-paced, online course on how to build Android apps using the latest best practices. It covers the basics of building apps with Jetpack Compose, the recommended toolkit for building user interfaces on Android.",
+                    url = "https://developer.android.com/courses/android-basics-compose/course"
+                )
+                ref.push().setValue(i)
+                val i2 = Item(
+                    title = "Training courses",
+                    description = "Whether a new developer, just new to Android, or an experienced professional, grow your skills with training created by Google's Android development experts. Then get certified as an Android developer to grow your career. ",
+                    url = "https://developer.android.com/courses"
+                )
+                ref.push().setValue(i2)
+                val i3 = Item(
+                    title = "Learn the Basics of Android",
+                    description = "Get started developing Android Apps! Get to know the Android programming environment and skills needed to build basic Android apps",
+                    url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
+                )
+                ref.push().setValue(i3)
+            }
+            ) {
+                Text("Back To Home")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { navController.navigate(AppDestinations.INTERNAL_ROUTE) }) {
-            Text("Back to home(Clear Stack)")
+            Button(onClick = {
+                navController.navigate(AppDestinations.ANDROID_ROUTE) {
+                    popUpTo(AppDestinations.ANDROID_ROUTE)
+                }
+            }) {
+                Text("View Next")
+            }
         }
     }
 }
 
 @Composable
 fun External_content(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    val firebase = Firebase.database
+    val ref = firebase.getReference("basics")
+    val context = LocalContext.current
 
+    var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Back To Home")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            navController.navigate(AppDestinations.EXTERNAL_ROUTE) {
-                popUpTo(AppDestinations.ANDROID_ROUTE)
+    LaunchedEffect(Unit) {
+        val items = mutableListOf<Item>()
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                items.clear() // Clear existing data to avoid duplicates on updates
+                for (userSnapshot in snapshot.children) {
+                    val user = userSnapshot.getValue(Item::class.java)
+                    user?.let {
+                        items.add(it)
+                    }
+                }
+                dataItems = items
             }
-        }) {
-            Text("View Next")
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            LazyColumn(modifier = Modifier.fillMaxSize())
+            {
+                items(dataItems) { item ->
+                    Card(onClick = {
+                        val url = item.url
+                        val webpage = url?.toUri()
+                        val intent = Intent(Intent.ACTION_VIEW, webpage)
+                        context.startActivity(intent)
+                    }) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                "${item.title}",
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("${item.description}")
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+
+
+            Button(onClick = {
+                navController.popBackStack()
+                val i = Item(
+                    title = "Android Basics with Compose",
+                    description = " Android Basics with Compose is a self-paced, online course on how to build Android apps using the latest best practices. It covers the basics of building apps with Jetpack Compose, the recommended toolkit for building user interfaces on Android.",
+                    url = "https://developer.android.com/courses/android-basics-compose/course"
+                )
+                ref.push().setValue(i)
+                val i2 = Item(
+                    title = "Training courses",
+                    description = "Whether a new developer, just new to Android, or an experienced professional, grow your skills with training created by Google's Android development experts. Then get certified as an Android developer to grow your career. ",
+                    url = "https://developer.android.com/courses"
+                )
+                ref.push().setValue(i2)
+                val i3 = Item(
+                    title = "Learn the Basics of Android",
+                    description = "Get started developing Android Apps! Get to know the Android programming environment and skills needed to build basic Android apps",
+                    url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
+                )
+                ref.push().setValue(i3)
+            }
+            ) {
+                Text("Back To Home")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                navController.navigate(AppDestinations.ANDROID_ROUTE) {
+                    popUpTo(AppDestinations.ANDROID_ROUTE)
+                }
+            }) {
+                Text("View Next")
+            }
         }
     }
 }
 
 @Composable
-fun Youtube(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+fun Youtube(navController: NavController){
+    val firebase = Firebase.database
+    val ref = firebase.getReference("basics")
+    val context = LocalContext.current
 
+    var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Back To Home")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            navController.navigate(AppDestinations.YOUTUBE_ROUTE) {
-                popUpTo(AppDestinations.ANDROID_ROUTE)
+    LaunchedEffect(Unit) {
+        val items = mutableListOf<Item>()
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                items.clear() // Clear existing data to avoid duplicates on updates
+                for (userSnapshot in snapshot.children) {
+                    val user = userSnapshot.getValue(Item::class.java)
+                    user?.let {
+                        items.add(it)
+                    }
+                }
+                dataItems = items
             }
-        }) {
-            Text("view Next")
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            LazyColumn(modifier = Modifier.fillMaxSize())
+            {
+                items(dataItems) { item ->
+                    Card(onClick = {
+                        val url = item.url
+                        val webpage = url?.toUri()
+                        val intent = Intent(Intent.ACTION_VIEW, webpage)
+                        context.startActivity(intent)
+                    }) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                "${item.title}",
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("${item.description}")
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+
+
+            Button(onClick = {
+                navController.popBackStack()
+                val i = Item(
+                    title = "Android Basics with Compose",
+                    description = " Android Basics with Compose is a self-paced, online course on how to build Android apps using the latest best practices. It covers the basics of building apps with Jetpack Compose, the recommended toolkit for building user interfaces on Android.",
+                    url = "https://developer.android.com/courses/android-basics-compose/course"
+                )
+                ref.push().setValue(i)
+                val i2 = Item(
+                    title = "Training courses",
+                    description = "Whether a new developer, just new to Android, or an experienced professional, grow your skills with training created by Google's Android development experts. Then get certified as an Android developer to grow your career. ",
+                    url = "https://developer.android.com/courses"
+                )
+                ref.push().setValue(i2)
+                val i3 = Item(
+                    title = "Learn the Basics of Android",
+                    description = "Get started developing Android Apps! Get to know the Android programming environment and skills needed to build basic Android apps",
+                    url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
+                )
+                ref.push().setValue(i3)
+            }
+            ) {
+                Text("Back To Home")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                navController.navigate(AppDestinations.ANDROID_ROUTE) {
+                    popUpTo(AppDestinations.ANDROID_ROUTE)
+                }
+            }) {
+                Text("View Next")
+            }
         }
     }
 }
 
 @Composable
 fun Learn_More(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    val firebase = Firebase.database
+    val ref = firebase.getReference("basics")
+    val context = LocalContext.current
 
+    var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Back To Home")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            navController.navigate(AppDestinations.LEARNMORE_ROUTE) {
-                popUpTo(AppDestinations.ANDROID_ROUTE)
+    LaunchedEffect(Unit) {
+        val items = mutableListOf<Item>()
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                items.clear() // Clear existing data to avoid duplicates on updates
+                for (userSnapshot in snapshot.children) {
+                    val user = userSnapshot.getValue(Item::class.java)
+                    user?.let {
+                        items.add(it)
+                    }
+                }
+                dataItems = items
             }
-        }) {
-            Text("Finish")
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            LazyColumn(modifier = Modifier.fillMaxSize())
+            {
+                items(dataItems) { item ->
+                    Card(onClick = {
+                        val url = item.url
+                        val webpage = url?.toUri()
+                        val intent = Intent(Intent.ACTION_VIEW, webpage)
+                        context.startActivity(intent)
+                    }) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                "${item.title}",
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("${item.description}")
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+
+
+            Button(onClick = {
+                navController.popBackStack()
+                val i = Item(
+                    title = "Android Basics with Compose",
+                    description = " Android Basics with Compose is a self-paced, online course on how to build Android apps using the latest best practices. It covers the basics of building apps with Jetpack Compose, the recommended toolkit for building user interfaces on Android.",
+                    url = "https://developer.android.com/courses/android-basics-compose/course"
+                )
+                ref.push().setValue(i)
+                val i2 = Item(
+                    title = "Training courses",
+                    description = "Whether a new developer, just new to Android, or an experienced professional, grow your skills with training created by Google's Android development experts. Then get certified as an Android developer to grow your career. ",
+                    url = "https://developer.android.com/courses"
+                )
+                ref.push().setValue(i2)
+                val i3 = Item(
+                    title = "Learn the Basics of Android",
+                    description = "Get started developing Android Apps! Get to know the Android programming environment and skills needed to build basic Android apps",
+                    url = "https://www.codecademy.com/learn/learn-the-basics-of-android"
+                )
+                ref.push().setValue(i3)
+            }
+            ) {
+                Text("Back To Home")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                navController.navigate(AppDestinations.ANDROID_ROUTE) {
+                    popUpTo(AppDestinations.ANDROID_ROUTE)
+                }
+            }) {
+                Text("View Next")
+            }
         }
     }
 }
