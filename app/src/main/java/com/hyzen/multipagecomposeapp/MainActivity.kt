@@ -42,6 +42,11 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.hyzen.multipagecomposeapp.ui.theme.MultiPageComposeAppTheme
 import androidx.core.net.toUri
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.Text
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,12 +100,13 @@ fun HomeScreen(navController: NavController) {
                 .padding(innerPadding)
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            background(Color.white)
         ) {
             Text(
                 text = "Hello Welcome!",
                 fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Bold.fontColor(color=Color.black),
                 modifier = Modifier.padding(bottom = 30.dp)
             )
             Button(onClick = { navController.navigate(AppDestinations.ANDROID_ROUTE) }) {
