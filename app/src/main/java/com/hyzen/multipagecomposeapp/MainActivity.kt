@@ -3,6 +3,7 @@ package com.hyzen.multipagecomposeapp
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -45,7 +46,16 @@ import androidx.core.net.toUri
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
-
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 
 
 class MainActivity : ComponentActivity() {
@@ -73,27 +83,32 @@ fun AppNavHost() {
         }
 
         composable(AppDestinations.ANDROID_ROUTE) {
-            Android_basics(navController = navController)
+            AndroidbasicsScreen(navController = navController)
         }
 
         composable(AppDestinations.INTERNAL_ROUTE) {
             Internal_content(navController = navController)
         }
         composable(AppDestinations.EXTERNAL_ROUTE) {
-            External_content(navController = navController)
+            ExternalcontentScreen(navController = navController)
         }
         composable(AppDestinations.YOUTUBE_ROUTE) {
-            Youtube(navController = navController)
+            YoutubeChannelScreen(navController = navController)
         }
         composable(AppDestinations.LEARNMORE_ROUTE) {
-            Learn_More(navController = navController)
+            LearnMoreScreen(navController = navController)
+        }
+        composable(AppDestinations.ADD_CONTENT_ROUTE) {
+            AddContentScreen(navController = navController)
         }
     }
 }
 
+
+
 @Composable
 fun HomeScreen(navController: NavController) {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold( containerColor = Color.Transparent,modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,11 +117,13 @@ fun HomeScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 
+
         ) {
             Text(
                 text = "Hello Welcome!",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 30.dp)
             )
             Button(onClick = { navController.navigate(AppDestinations.ANDROID_ROUTE) }) {
@@ -132,13 +149,132 @@ fun HomeScreen(navController: NavController) {
             Button(onClick = { navController.navigate(AppDestinations.LEARNMORE_ROUTE) }) {
                 Text("Learn More")
             }
+
+            Button(onClick = { navController.navigate(AppDestinations.ADD_CONTENT_ROUTE) }) {
+                Text("Add Content")
+            }
         }
     }
 
 }
 
 @Composable
-fun Android_basics(navController: NavController) {
+fun AddContentScreen(navController: NavController) {
+    val firebase = Firebase.database
+    val context = LocalContext.current
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var url by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("basics") }
+    val categories = listOf("basics", "internal", "external", "youtube")
+
+    Surface( // Add Surface for background color
+        modifier = Modifier.fillMaxSize(),) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color.Transparent
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // ... (Rest of your AddContentScreen content: TextFields, Dropdown, Button)
+                Text("Add New Content", style = MaterialTheme.typography.headlineSmall)
+
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Title") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 5
+                )
+
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = { url = it },
+                    label = { Text("URL") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                var expanded by remember { mutableStateOf(false) }
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedCategory,
+                        onValueChange = { /* Read-only */ },
+                        label = { Text("Category") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = true },
+                        readOnly = true,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowDropDown,
+                                contentDescription = "Select Category",
+                                Modifier.clickable { expanded = true }
+                            )
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category) },
+                                onClick = {
+                                    selectedCategory = category
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        if (title.isNotBlank() && description.isNotBlank() && url.isNotBlank()) {
+                            val ref = firebase.getReference(selectedCategory)
+                            val newItem = Item(title = title, description = description, url = url)
+                            ref.push().setValue(newItem)
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "Content added successfully!", Toast.LENGTH_SHORT).show()
+                                    title = ""
+                                    description = ""
+                                    url = ""
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(context, "Failed to add content: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                        } else {
+                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Add Content")
+                }
+                Button(onClick = { navController.popBackStack() }) { // Back button
+                    Text("Back To Home")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AndroidbasicsScreen(navController: NavController) {
     val firebase = Firebase.database
     val ref = firebase.getReference("basics")
     val context = LocalContext.current
@@ -184,7 +320,8 @@ fun Android_basics(navController: NavController) {
                         context.startActivity(intent)
                     }) {
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(horizontal = 10.dp, vertical = 12.dp)
                         ) {
                             Text(
@@ -223,8 +360,8 @@ fun Android_basics(navController: NavController) {
 
                 val i4 = Item(
                     title = "Android Basics",
-                    description = "\n" +
-                            "\n" +
+                    description = "" +
+                            "" +
                             "Use this free Android tutorial to get started with your device, manage your privacy and settings, add and delete contacts, and keep it running smoothly.\n",
                     url = "https://edu.gcfglobal.org/en/androidbasics/"
                 )
@@ -263,7 +400,7 @@ fun Android_basics(navController: NavController) {
 @Composable
 fun Internal_content(navController: NavController) {
     val firebase = Firebase.database
-    val ref = firebase.getReference("basics")
+    val ref = firebase.getReference("internal")
     val context = LocalContext.current
 
     var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
@@ -307,7 +444,8 @@ fun Internal_content(navController: NavController) {
                         context.startActivity(intent)
                     }) {
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(horizontal = 10.dp, vertical = 12.dp)
                         ) {
                             Text(
@@ -361,9 +499,9 @@ fun Internal_content(navController: NavController) {
 }
 
 @Composable
-fun External_content(navController: NavController) {
+fun ExternalcontentScreen(navController: NavController) {
     val firebase = Firebase.database
-    val ref = firebase.getReference("basics")
+    val ref = firebase.getReference("external")
     val context = LocalContext.current
 
     var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
@@ -407,7 +545,8 @@ fun External_content(navController: NavController) {
                         context.startActivity(intent)
                     }) {
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(horizontal = 10.dp, vertical = 12.dp)
                         ) {
                             Text(
@@ -461,9 +600,9 @@ fun External_content(navController: NavController) {
 }
 
 @Composable
-fun Youtube(navController: NavController){
+fun YoutubeChannelScreen(navController: NavController){
     val firebase = Firebase.database
-    val ref = firebase.getReference("basics")
+    val ref = firebase.getReference("youtube")
     val context = LocalContext.current
 
     var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
@@ -507,7 +646,8 @@ fun Youtube(navController: NavController){
                         context.startActivity(intent)
                     }) {
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(horizontal = 10.dp, vertical = 12.dp)
                         ) {
                             Text(
@@ -561,9 +701,9 @@ fun Youtube(navController: NavController){
 }
 
 @Composable
-fun Learn_More(navController: NavController) {
+fun LearnMoreScreen(navController: NavController) {
     val firebase = Firebase.database
-    val ref = firebase.getReference("basics")
+    val ref = firebase.getReference("learnmore")
     val context = LocalContext.current
 
     var dataItems by remember { mutableStateOf<List<Item>>(emptyList()) }
@@ -607,7 +747,8 @@ fun Learn_More(navController: NavController) {
                         context.startActivity(intent)
                     }) {
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(horizontal = 10.dp, vertical = 12.dp)
                         ) {
                             Text(
