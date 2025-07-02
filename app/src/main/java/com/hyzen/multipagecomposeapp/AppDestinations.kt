@@ -6,5 +6,6 @@ object AppDestinations {
     const val INTERNAL_ROUTE = "internal_content screen"
     const val EXTERNAL_ROUTE = "external_android_content screen"
     const val YOUTUBE_ROUTE = "view_channel"
-    const val LEARNMORE_ROUTE = "Learn_More"
+    const val LEARNMORE_ROUTE = "learn_More"
+    const val ADD_CONTENT_ROUTE = "add_content"
 }
